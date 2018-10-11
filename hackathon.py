@@ -6,15 +6,31 @@ import operator
 import time
 
 
+
 def load_data():
     trend = requests.get('https://api.stocktwits.com/api/2/streams/trending.json?access_token=fdf4ddd7a52a0e54753b884627259c12ad2f13ba')
     suggest = requests.get('https://api.stocktwits.com/api/2/streams/suggested.json?access_token=fdf4ddd7a52a0e54753b884627259c12ad2f13ba')
+    
     trending = trend.json()
     suggesting = suggest.json()
+    
     df_trending = pd.DataFrame(trending['messages'])
     df_suggesting = pd.DataFrame(suggesting['messages'])
     
     return df_trending, df_suggesting
+
+
+def load_data2():
+    trend2 = requests.get('https://api.stocktwits.com/api/2/streams/trending.json?access_token=0af7726bda1f845bbe29da4c99a312e342f868c4')
+    suggest2 = requests.get('https://api.stocktwits.com/api/2/streams/suggested.json?access_token=0af7726bda1f845bbe29da4c99a312e342f868c4')
+    
+    trending2 = trend2.json()
+    suggest2 = suggest2.json()
+    
+    df_trending2 = pd.DataFrame(trending2['messages'])
+    df_suggesting2 = pd.DataFrame(suggest2['messages'])
+    
+    return df_trending2, df_suggesting2
 
 
 class Stock:
@@ -62,7 +78,7 @@ def analyze(df):
                     sent1 = df['entities'][i]['sentiment']['basic']
                     if(sent1 == 'Bullish'):
                         stock_dict[tick].add_bull()
-                    elif(sentiment == 'Bearish'):
+                    if(sent1 == 'Bearish'):
                         stock_dict[tick].add_bear()
                 except:
                     pass
@@ -78,18 +94,15 @@ def evaluate():
     for i in sorted_l:
         print(i)
     
-
 def save_dict():
     pickle_stock = open("stock_dict.pickle", "wb")
     pickle.dump(stock_dict, pickle_stock)
     pickle_stock.close()
     
-
 def save_set():
     pickle_stock_set = open("stock_set.pickle", "wb")
     pickle.dump(stock_set, pickle_stock_set)
     pickle_stock_set.close()
-
 
 def load_dict():
     file = open('stock_dict.pickle', 'rb')
@@ -97,30 +110,34 @@ def load_dict():
     file.close()
     return data
 
-
 def load_set():
     file = open('stock_set.pickle','rb')
     data = pickle.load(file)
     file.close()
     return data
 
-
 def main():
-    
-    print('\n')
-    print('-'*20)
-    
     #load data from api
     df_trending, df_suggesting = load_data()
+    print('sleeping...')
+    time.sleep(180)
+    print('done sleeping')
+    df_trending2, df_suggesting2 = load_data2()
 
-
-    # #load pickles from memory
-    # stock_dict = load_dict()
-    # stock_set = load_set()
+    #load pickles from memory
+#     stock_dict = load_dict()
+#     stock_set = load_set()
     
     #update dictionary/set
+    print('first bot')
     analyze(df_suggesting)
     analyze(df_trending)
+    evaluate()
+    
+    print('\n')
+    print('second bot')
+    analyze(df_suggesting2)
+    analyze(df_trending2)
     evaluate()
     
     #save the new data
@@ -128,15 +145,13 @@ def main():
     save_set()
     print('\n')
     print('-'*20)
-    time.sleep(360)
+    
+    time.sleep(180)
 
 
 if __name__ == '__main__':
-    # stock_dict = {}
-    # stock_set = set()
-    #load pickles from memory
-    stock_dict = load_dict()
-    stock_set = load_set()
-    while True:
-        main()
+    stock_dict = {}
+    stock_set = set()
+    main()
+        
 

@@ -1,18 +1,9 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
 import numpy as np
 import pandas as pd
 import requests
 import pickle
 import operator
 import time
-
-
-# In[2]:
 
 
 def load_dict():
@@ -28,14 +19,9 @@ def load_set():
     return data
 
 
-# In[3]:
-
-
 ticker_set = load_set()
 stock_data = load_dict()
 
-
-# In[17]:
 
 
 ticker = "ALT"
